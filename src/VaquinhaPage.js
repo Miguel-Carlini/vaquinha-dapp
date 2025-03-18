@@ -48,6 +48,8 @@ export function VaquinhaPage() {
   // -------------------------
   //  Carregar dados iniciais
   // -------------------------
+
+
   useEffect(() => {
     if (!address) return;
 
@@ -148,6 +150,29 @@ export function VaquinhaPage() {
       vaquinhaContract.removeAllListeners("MetaAtingida");
     };
   }, [vaquinhaContract, startBlock]);
+
+  useEffect(() => {
+    if (window.ethereum) {
+      const handleAccountsChanged = (accounts) => {
+        if (accounts.length > 0) {
+          const newAccount = accounts[0];
+          setCurrentUser(newAccount);
+          const provider = new ethers.providers.Web3Provider(window.ethereum);
+          const signer = provider.getSigner();
+          // Atualize o contrato com o novo signer, se necessário:
+          if (vaquinhaContract) {
+            const newContract = new ethers.Contract(address, vaquinhaABI, signer);
+            setVaquinhaContract(newContract);
+          }
+        }
+      };
+
+      window.ethereum.on("accountsChanged", handleAccountsChanged);
+      return () => {
+        window.ethereum.removeListener("accountsChanged", handleAccountsChanged);
+      };
+    }
+  }, [vaquinhaContract, address]);
 
   // -------------------------
   //    Função de Doar

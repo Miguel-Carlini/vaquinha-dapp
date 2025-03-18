@@ -72,7 +72,7 @@ function ConnectWallet({ setAccount, setIsConnected, setSigner, setProvider }) {
       try {
         await window.ethereum.request({ method: "eth_requestAccounts" });
 
-        const provider = new ethers.Web3Provider(window.ethereum);
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
         const signer = provider.getSigner();
         const address = await signer.getAddress();
 

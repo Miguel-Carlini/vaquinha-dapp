@@ -84,6 +84,35 @@ export function VaquinhaHome() {
         }
     }, [isConnected, signer, listarVaquinhas]);
 
+    useEffect(() => {
+        if (window.ethereum) {
+            const handleAccountsChanged = (accounts) => {
+                if (accounts.length > 0) {
+                    const newAccount = accounts[0];
+                    setAccount(newAccount);
+                    const newProvider = new ethers.providers.Web3Provider(window.ethereum);
+                    setProvider(newProvider);
+                    const newSigner = newProvider.getSigner();
+                    setSigner(newSigner);
+                    // Se desejar, você pode chamar listarVaquinhas() novamente
+                    listarVaquinhas();
+                } else {
+                    setIsConnected(false);
+                    setAccount("");
+                    setSigner(null);
+                    setProvider(null);
+                }
+            };
+
+            window.ethereum.on("accountsChanged", handleAccountsChanged);
+
+            return () => {
+                window.ethereum.removeListener("accountsChanged", handleAccountsChanged);
+            };
+        }
+    }, [listarVaquinhas]);
+
+
     const handleCardClick = (vaquinhaAddress) => {
         navigate(`/vaquinha/${vaquinhaAddress}`);
     };
